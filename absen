@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi Sholat Zuhur | SMK Annur</title>
+<style>
+:root {
+  --green:#126447;
+  --dark:#103f30;
+  --bg:#f4f7f5;
+  --white:#fff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Arial,sans-serif;
+  background:var(--bg);color:#24352d;
+}
+header{
+  background:var(--green);color:white;
+  padding:22px 7%;display:flex;
+  justify-content:space-between;align-items:center;
+}
+header h2{margin:0;font-size:20px}
+header small{color:#d7eee3}
+.container{max-width:1100px;margin:25px auto;padding:0 18px}
+.card{
+  background:white;border-radius:14px;
+  padding:20px;margin-bottom:18px;
+  box-shadow:0 3px 15px #00000009;
+}
+h3{margin-top:0}
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+}
+.stat{padding:18px;border-radius:12px;background:#eaf5ef}
+.stat strong{display:block;font-size:27px;color:var(--green);margin-top:8px}
+button,select,input{
+  padding:11px 14px;border:1px solid #ddd;
+  border-radius:8px;font-size:14px;
+}
+button{cursor:pointer;background:var(--green);color:white;border:0}
+button:hover{opacity:.85}
+button.secondary{background:#64748b}
+button.danger{background:#bd4545}
+button.active{background:#0b4934}
+input,select{background:white}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:12px 10px;border-bottom:1px solid #eee;text-align:left}
+th{background:#edf5f0;color:#22543d}
+.table-wrap{overflow-x:auto}
+.status{padding:7px;border-radius:7px;font-size:12px}
+.hadir{background:#d9f5e4;color:#146c38}
+.izin{background:#dcecff;color:#245a9b}
+.sakit{background:#fff0c9;color:#90620b}
+.alpha{background:#ffe0e0;color:#a52d2d}
+.hidden{display:none!important}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav button{background:#e5eee9;color:#20543c}
+nav button.active{background:var(--green);color:white}
+footer{text-align:center;color:#829087;padding:25px;font-size:12px}
+@media(max-width:650px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ header{padding:18px;gap:8px}
+ header h2{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div>
+  <h2>☪ SMK ANNUR</h2>
+  <small>ABSENSI SHOLAT ZUHUR</small>
+ </div>
+ <button class="secondary" onclick="logout()">Keluar</button>
+</header>
+
+<div class="container">
+
+<!-- LOGIN -->
+<section id="login" class="card" style="max-width:420px;margin:65px auto">
+ <h2 style="color:#126447">Selamat Datang</h2>
+ <p>Silakan login menggunakan akun guru.</p>
+ <input id="username" placeholder="Username" style="width:100%;margin-bottom:12px">
+ <input id="password" type="password" placeholder="Password" style="width:100%;margin-bottom:15px">
+ <button onclick="login()" style="width:100%">MASUK</button>
+ <p id="error" style="color:red;font-size:13px"></p>
+ <small>Demo: admin/admin123, putra/putra123, putri/putri123</small>
+</section>
+
+<!-- DASHBOARD -->
+<section id="app" class="hidden">
+ <div class="card">
+  <h2>Assalamu'alaikum!</h2>
+  <p id="welcome">Selamat datang di sistem absensi SMK Annur.</p>
+  <strong id="tanggal"></strong>
+ </div>
+
+ <nav>
+  <button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
+  <button onclick="showPage('absensi',this)">Absensi</button>
+  <button onclick="showPage('rekap',this)">Rekap Bulanan</button>
+ </nav>
+
+ <div id="dashboard" style="margin-top:18px">
+  <div class="stats">
+   <div class="stat">Total Siswa<strong id="total">0</strong></div>
+   <div class="stat">Hadir<strong id="hadir">0</strong></div>
+   <div class="stat">Izin / Sakit<strong id="izin">0</strong></div>
+   <div class="stat">Tidak Hadir<strong id="alpha">0</strong></div>
+  </div>
+  <div class="card" style="margin-top:18px">
+   <h3>Informasi Absensi</h3>
+   <p>Absensi dilakukan Senin sampai Sabtu, kecuali hari Jumat.</p>
+   <p>Guru putra dan putri melakukan absensi melalui akun masing-masing.</p>
+  </div>
+ </div>
+
+ <!-- ABSENSI -->
+ <div id="absensi" class="card hidden" style="margin-top:18px">
+  <h3>Form Absensi Sholat Zuhur</h3>
+  <div class="controls">
+   <select id="kelas" onchange="renderStudents()">
+    <option>X TKJ</option><option>X ASKEP</option>
+    <option>XI TKJ</option><option>XI ASKEP</option>
+    <option>XII TKJ</option><option>XII ASKEP</option>
+   </select>
+   <input type="date" id="tanggalAbsensi">
+   <button onclick="setAll('HADIR')">Semua Hadir</button>
+  </div>
+  <p id="jenisGuru"></p>
+  <div class="table-wrap">
+   <table>
+    <thead><tr><th>No</th><th>Nama Siswa</th><th>Status Kehadiran</th></tr></thead>
+    <tbody id="daftarSiswa"></tbody>
+   </table>
+  </div>
+  <br>
+  <button onclick="simpan()">SIMPAN ABSENSI</button>
+  <p id="pesan"></p>
+ </div>
+
+ <!-- REKAP -->
+ <div id="rekap" class="card hidden" style="margin-top:18px">
+  <h3>Rekap Absensi Bulanan</h3>
+  <div class="controls">
+   <select id="filterKelas">
+    <option>X TKJ</option><option>X ASKEP</option>
+    <option>XI TKJ</option><option>XI ASKEP</option>
+    <option>XII TKJ</option><option>XII ASKEP</option>
+   </select>
+   <input type="month" id="filterBulan">
+   <button onclick="buatRekap()">Tampilkan</button>
+   <button onclick="window.print()" class="secondary">Cetak</button>
+  </div>
+  <div class="table-wrap">
+   <table>
+    <thead><tr><th>No</th><th>Nama</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Tidak Hadir</th></tr></thead>
+    <tbody id="hasilRekap"></tbody>
+   </table>
+  </div>
+ </div>
+</section>
+</div>
+
+<footer>
+ SMK ANNUR SUMBERTAMAN KOTA PROBOLINGGO<br>
+ Disiplin Beribadah, Membentuk Generasi Berakhlak Mulia.
+</footer>
+
+<script>
+const users={
+ admin:{password:'admin123',role:'admin'},
+ putra:{password:'putra123',role:'putra'},
+ putri:{password:'putri123',role:'putri'}
+};
+
+let current=null;
+let data=JSON.parse(localStorage.getItem('absensiAnnur')||'{}');
+
+const siswa={
+ 'X TKJ':{putra:['Ahmad','Budi','Fajar'],putri:['Aisyah','Dina','Siti']},
+ 'X ASKEP':{putra:['Rizki','Arif'],putri:['Nadia','Putri']},
+ 'XI TKJ':{putra:['Dimas','Rian'],putri:['Nabila','Aulia']},
+ 'XI ASKEP':{putra:['Ilham','Farhan'],putri:['Zahra','Intan']},
+ 'XII TKJ':{putra:['Andi','Reza'],putri:['Alya','Nisa']},
+ 'XII ASKEP':{putra:['Rafi','Hafiz'],putri:['Salma','Laila']}
+};
+
+function login(){
+ const u=document.getElementById('username').value;
+ const p=document.getElementById('password').value;
+ if(!users[u]||users[u].password!==p){
+  document.getElementById('error').textContent='Username atau password salah!';
+  return;
+ }
+ current={username:u,role:users[u].role};
+ document.getElementById('login').classList.add('hidden');
+ document.getElementById('app').classList.remove('hidden');
+ document.getElementById('welcome').textContent='Login sebagai '+u.toUpperCase();
+ document.getElementById('jenisGuru').textContent='Kategori: '+current.role.toUpperCase();
+ const today=new Date();
+ document.getElementById('tanggal').textContent=today.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ document.getElementById('tanggalAbsensi').value=localDate(today);
+ renderStudents();updateDashboard();
+}
+
+function localDate(d){
+ return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+}
+
+function logout(){
+ current=null;
+ document.getElementById('app').classList.add('hidden');
+ document.getElementById('login').classList.remove('hidden');
+}
+
+function showPage(id,btn){
+ ['dashboard','absensi','rekap'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+}
+
+function renderStudents(){
+ if(!current)return;
+ const kelas=document.getElementById('kelas').value;
+ const kategori=current.role==='admin'?'putra':current.role;
+ let list=current.role==='admin'
+  ? [...siswa[kelas].putra,...siswa[kelas].putri]
+  : siswa[kelas][kategori];
+ const tbody=document.getElementById('daftarSiswa');
+ tbody.innerHTML='';
+ list.forEach((nama,i)=>{
+  const key=kelas+'_'+nama;
+  const old=data[document.getElementById('tanggalAbsensi').value]?.[key]||'';
+  tbody.innerHTML+=`<tr><td>${i+1}</td><td>${nama}</td><td>
+  <select data-key="${key}">
+  ${['HADIR','IZIN','SAKIT','TIDAK HADIR'].map(s=>`<option ${old===s?'selected':''}>${s}</option>`).join('')}
+  </select></td></tr>`;
+ });
+}
+
+function simpan(){
+ const tanggal=document.getElementById('tanggalAbsensi').value;
+ const kelas=document.getElementById('kelas').value;
+ if(!tanggal){alert('Pilih tanggal!');return}
+ if(new Date(tanggal+'T12:00:00').getDay()===5){
+  alert('Hari Jumat tidak ada absensi.');return;
+ }
+ if(!data[tanggal])data[tanggal]={};
+ document.querySelectorAll('#daftarSiswa select').forEach(el=>{
+  data[tanggal][el.dataset.key]=el.value;
+ });
+ localStorage.setItem('absensiAnnur',JSON.stringify(data));
+ document.getElementById('pesan').textContent='Absensi berhasil disimpan!';
+ updateDashboard();
+}
+
+function setAll(status){
+ document.querySelectorAll('#daftarSiswa select').forEach(el=>el.value=status);
+}
+
+function updateDashboard(){
+ let today=localDate(new Date()),counts={HADIR:0,IZIN:0,SAKIT:0,'TIDAK HADIR':0};
+ Object.entries(data[today]||{}).forEach(([key,status])=>counts[status]++);
+ document.getElementById('hadir').textContent=counts.HADIR;
+ document.getElementById('izin').textContent=counts.IZIN+counts.SAKIT;
+ document.getElementById('alpha').textContent=counts['TIDAK HADIR'];
+ document.getElementById('total').textContent=Object.values(siswa).reduce((n,k)=>n+k.putra.length+k.putri.length,0);
+}
+
+function buatRekap(){
+ const kelas=document.getElementById('filterKelas').value;
+ const bulan=document.getElementById('filterBulan').value;
+ if(!bulan){alert('Pilih bulan terlebih dahulu');return}
+ let semua=[...siswa[kelas].putra,...siswa[kelas].putri];
+ let html='';
+ semua.forEach((nama,i)=>{
+  let c={HADIR:0,IZIN:0,SAKIT:0,'TIDAK HADIR':0};
+  Object.entries(data).forEach(([tgl,records])=>{
+   if(tgl.startsWith(bulan)){
+    let s=records[kelas+'_'+nama];
+    if(s)c[s]++;
+   }
+  });
+  html+=`<tr><td>${i+1}</td><td>${nama}</td><td>${c.HADIR}</td><td>${c.IZIN}</td><td>${c.SAKIT}</td><td>${c['TIDAK HADIR']}</td></tr>`;
+ });
+ document.getElementById('hasilRekap').innerHTML=html;
+}
+</script>
+</body>
+</html>
