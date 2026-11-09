@@ -1,73 +1,42 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Absensi Sholat Zuhur | SMK Annur</title>
+
 <style>
 :root {
   --green:#126447;
-  --dark:#103f30;
   --bg:#f4f7f5;
-  --white:#fff;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;font-family:Arial,sans-serif;
-  background:var(--bg);color:#24352d;
-}
-header{
-  background:var(--green);color:white;
-  padding:22px 7%;display:flex;
-  justify-content:space-between;align-items:center;
-}
-header h2{margin:0;font-size:20px}
-header small{color:#d7eee3}
+body{margin:0;font-family:Arial;background:var(--bg);color:#24352d}
+header{background:var(--green);color:white;padding:20px 7%;display:flex;justify-content:space-between;align-items:center}
+header h2{margin:0}
 .container{max-width:1100px;margin:25px auto;padding:0 18px}
-.card{
-  background:white;border-radius:14px;
-  padding:20px;margin-bottom:18px;
-  box-shadow:0 3px 15px #00000009;
-}
-h3{margin-top:0}
-.stats{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
-}
+.card{background:white;border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 3px 15px #00000009}
+button,input,select{padding:11px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+button{cursor:pointer;background:var(--green);color:white;border:0}
+.secondary{background:#64748b}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+nav button{background:#e5eee9;color:#20543c}
+nav button.active{background:var(--green);color:white}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .stat{padding:18px;border-radius:12px;background:#eaf5ef}
 .stat strong{display:block;font-size:27px;color:var(--green);margin-top:8px}
-button,select,input{
-  padding:11px 14px;border:1px solid #ddd;
-  border-radius:8px;font-size:14px;
-}
-button{cursor:pointer;background:var(--green);color:white;border:0}
-button:hover{opacity:.85}
-button.secondary{background:#64748b}
-button.danger{background:#bd4545}
-button.active{background:#0b4934}
-input,select{background:white}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
 table{width:100%;border-collapse:collapse;min-width:650px}
 th,td{padding:12px 10px;border-bottom:1px solid #eee;text-align:left}
 th{background:#edf5f0;color:#22543d}
 .table-wrap{overflow-x:auto}
-.status{padding:7px;border-radius:7px;font-size:12px}
-.hadir{background:#d9f5e4;color:#146c38}
-.izin{background:#dcecff;color:#245a9b}
-.sakit{background:#fff0c9;color:#90620b}
-.alpha{background:#ffe0e0;color:#a52d2d}
 .hidden{display:none!important}
-nav{display:flex;gap:8px;flex-wrap:wrap}
-nav button{background:#e5eee9;color:#20543c}
-nav button.active{background:var(--green);color:white}
 footer{text-align:center;color:#829087;padding:25px;font-size:12px}
-@media(max-width:650px){
- .stats{grid-template-columns:repeat(2,1fr)}
- header{padding:18px;gap:8px}
- header h2{font-size:16px}
-}
+@media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}header{padding:18px}}
+@media print{header,nav,button,.no-print,footer{display:none!important}.card{box-shadow:none}}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -80,22 +49,21 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
 
 <div class="container">
 
-<!-- LOGIN -->
 <section id="login" class="card" style="max-width:420px;margin:65px auto">
  <h2 style="color:#126447">Selamat Datang</h2>
  <p>Silakan login menggunakan akun guru.</p>
  <input id="username" placeholder="Username" style="width:100%;margin-bottom:12px">
  <input id="password" type="password" placeholder="Password" style="width:100%;margin-bottom:15px">
  <button onclick="login()" style="width:100%">MASUK</button>
- <p id="error" style="color:red;font-size:13px"></p>
+ <p id="error" style="color:red"></p>
  <small>Demo: admin/admin123, putra/putra123, putri/putri123</small>
 </section>
 
-<!-- DASHBOARD -->
 <section id="app" class="hidden">
+
  <div class="card">
   <h2>Assalamu'alaikum!</h2>
-  <p id="welcome">Selamat datang di sistem absensi SMK Annur.</p>
+  <p id="welcome"></p>
   <strong id="tanggal"></strong>
  </div>
 
@@ -105,7 +73,7 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
   <button onclick="showPage('rekap',this)">Rekap Bulanan</button>
  </nav>
 
- <div id="dashboard" style="margin-top:18px">
+ <div id="dashboard">
   <div class="stats">
    <div class="stat">Total Siswa<strong id="total">0</strong></div>
    <div class="stat">Hadir<strong id="hadir">0</strong></div>
@@ -115,20 +83,15 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
   <div class="card" style="margin-top:18px">
    <h3>Informasi Absensi</h3>
    <p>Absensi dilakukan Senin sampai Sabtu, kecuali hari Jumat.</p>
-   <p>Guru putra dan putri melakukan absensi melalui akun masing-masing.</p>
+   <p>Guru putra dan putri menggunakan akun masing-masing.</p>
   </div>
  </div>
 
- <!-- ABSENSI -->
- <div id="absensi" class="card hidden" style="margin-top:18px">
+ <div id="absensi" class="card hidden">
   <h3>Form Absensi Sholat Zuhur</h3>
   <div class="controls">
-   <select id="kelas" onchange="renderStudents()">
-    <option>X TKJ</option><option>X ASKEP</option>
-    <option>XI TKJ</option><option>XI ASKEP</option>
-    <option>XII TKJ</option><option>XII ASKEP</option>
-   </select>
-   <input type="date" id="tanggalAbsensi">
+   <select id="kelas" onchange="renderStudents()"></select>
+   <input type="date" id="tanggalAbsensi" onchange="renderStudents()">
    <button onclick="setAll('HADIR')">Semua Hadir</button>
   </div>
   <p id="jenisGuru"></p>
@@ -143,26 +106,24 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
   <p id="pesan"></p>
  </div>
 
- <!-- REKAP -->
- <div id="rekap" class="card hidden" style="margin-top:18px">
+ <div id="rekap" class="card hidden">
   <h3>Rekap Absensi Bulanan</h3>
-  <div class="controls">
-   <select id="filterKelas">
-    <option>X TKJ</option><option>X ASKEP</option>
-    <option>XI TKJ</option><option>XI ASKEP</option>
-    <option>XII TKJ</option><option>XII ASKEP</option>
-   </select>
+  <div class="controls no-print">
+   <select id="filterKelas"></select>
    <input type="month" id="filterBulan">
    <button onclick="buatRekap()">Tampilkan</button>
    <button onclick="window.print()" class="secondary">Cetak</button>
   </div>
   <div class="table-wrap">
    <table>
-    <thead><tr><th>No</th><th>Nama</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Tidak Hadir</th></tr></thead>
+    <thead>
+     <tr><th>No</th><th>Nama</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Tidak Hadir</th></tr>
+    </thead>
     <tbody id="hasilRekap"></tbody>
    </table>
   </div>
  </div>
+
 </section>
 </div>
 
@@ -172,154 +133,311 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
 </footer>
 
 <script>
-const users={
- admin:{password:'admin123',role:'admin'},
- putra:{password:'putra123',role:'putra'},
- putri:{password:'putri123',role:'putri'}
+
+// GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT
+const GOOGLE_SCRIPT_URL =https://script.google.com/a/macros/smk.belajar.id/s/AKfycbyz7soT5qQuUjiVp1R4KAAf8ZKu1thuk7UXGxA3AW1QbTl_Gg-i8t-UumH47qseo53o_A/exec
+
+const users = {
+ admin:{password:"admin123",role:"admin"},
+ putra:{password:"putra123",role:"putra"},
+ putri:{password:"putri123",role:"putri"}
 };
 
-let current=null;
-let data=JSON.parse(localStorage.getItem('absensiAnnur')||'{}');
+let current = null;
+let siswa = {};
+let attendance = [];
 
-const siswa={
- 
-async function muatSiswa() {
-  const response = await fetch(GOOGLE_SCRIPT_URL);
-  const students = await response.json();
+function ambilData(action) {
+ return new Promise((resolve,reject) => {
+  const callback = "annurCallback" + Date.now() + Math.floor(Math.random()*1000);
+  const script = document.createElement("script");
 
-  siswa = {};
+  const timeout = setTimeout(() => {
+   delete window[callback];
+   script.remove();
+   reject(new Error("Koneksi ke Google Sheets gagal atau terlalu lama."));
+  },15000);
 
-  students.forEach(item => {
-    const kelas = item.kelas;
-    const gender = item.gender.toLowerCase();
+  window[callback] = result => {
+   clearTimeout(timeout);
+   delete window[callback];
+   script.remove();
+   resolve(result);
+  };
 
-    if (!siswa[kelas]) {
-      siswa[kelas] = {
-        putra: [],
-        putri: []
-      };
-    }
+  script.onerror = () => {
+   clearTimeout(timeout);
+   delete window[callback];
+   script.remove();
+   reject(new Error("Tidak dapat mengambil data Google Sheets."));
+  };
 
-    if (gender === "putra") {
-      siswa[kelas].putra.push(item.nama);
-    } else if (gender === "putri") {
-      siswa[kelas].putri.push(item.nama);
-    }
-  });
+  script.src = GOOGLE_SCRIPT_URL +
+   "?action=" + action +
+   "&callback=" + callback +
+   "&t=" + Date.now();
 
-  // Isi pilihan kelas secara otomatis
-  const options = Object.keys(siswa)
-    .sort()
-    .map(k => `<option>${k}</option>`)
-    .join("");
-
-  document.getElementById("kelas").innerHTML = options;
-  document.getElementById("filterKelas").innerHTML = options;
+  document.body.appendChild(script);
+ });
 }
 
-};
+async function muatSiswa() {
+ const students = await ambilData("students");
 
-function async function login()
- const u=document.getElementById('username').value;
- const p=document.getElementById('password').value;
- if(!users[u]||users[u].password!==p){
-  document.getElementById('error').textContent='Username atau password salah!';
+ siswa = {};
+
+ students.forEach(item => {
+  const kelas = item.kelas;
+  const gender = item.gender.toLowerCase();
+
+  if (!siswa[kelas]) {
+   siswa[kelas] = {putra:[],putri:[]};
+  }
+
+  if (gender === "putra") siswa[kelas].putra.push(item.nama);
+  if (gender === "putri") siswa[kelas].putri.push(item.nama);
+ });
+
+ const kelasList = Object.keys(siswa).sort();
+
+ if (kelasList.length === 0) {
+  throw new Error("Data siswa belum tersedia di tab SISWA.");
+ }
+
+ ["kelas","filterKelas"].forEach(id => {
+  document.getElementById(id).innerHTML =
+   kelasList.map(k => `<option value="${k}">${k}</option>`).join("");
+ });
+}
+
+async function muatAbsensi() {
+ attendance = await ambilData("attendance");
+}
+
+async function login() {
+ const u = document.getElementById("username").value.trim();
+ const p = document.getElementById("password").value;
+
+ if (!users[u] || users[u].password !== p) {
+  document.getElementById("error").textContent = "Username atau password salah!";
   return;
  }
- current={username:u,role:users[u].role};
- document.getElementById('login').classList.add('hidden');
- document.getElementById('app').classList.remove('hidden');
- document.getElementById('welcome').textContent='Login sebagai '+u.toUpperCase();
- document.getElementById('jenisGuru').textContent='Kategori: '+current.role.toUpperCase();
- const today=new Date();
- document.getElementById('tanggal').textContent=today.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
- document.getElementById('tanggalAbsensi').value=localDate(today);
- renderStudents();updateDashboard();
-}
 
-function localDate(d){
- return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
-}
+ const error = document.getElementById("error");
+ error.textContent = "Menghubungkan ke database...";
 
-function logout(){
- current=null;
- document.getElementById('app').classList.add('hidden');
- document.getElementById('login').classList.remove('hidden');
-}
+ try {
+  await muatSiswa();
+  await muatAbsensi();
 
-function showPage(id,btn){
- ['dashboard','absensi','rekap'].forEach(x=>document.getElementById(x).classList.add('hidden'));
- document.getElementById(id).classList.remove('hidden');
- document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
- btn.classList.add('active');
-}
-await muatSiswa();
-function renderStudents(){
- if(!current)return;
- const kelas=document.getElementById('kelas').value;
- const kategori=current.role==='admin'?'putra':current.role;
- let list=current.role==='admin'
-  ? [...siswa[kelas].putra,...siswa[kelas].putri]
-  : siswa[kelas][kategori];
- const tbody=document.getElementById('daftarSiswa');
- tbody.innerHTML='';
- list.forEach((nama,i)=>{
-  const key=kelas+'_'+nama;
-  const old=data[document.getElementById('tanggalAbsensi').value]?.[key]||'';
-  tbody.innerHTML+=`<tr><td>${i+1}</td><td>${nama}</td><td>
-  <select data-key="${key}">
-  ${['HADIR','IZIN','SAKIT','TIDAK HADIR'].map(s=>`<option ${old===s?'selected':''}>${s}</option>`).join('')}
-  </select></td></tr>`;
- });
-}
+  current = {username:u,role:users[u].role};
 
-function simpan(){
- const tanggal=document.getElementById('tanggalAbsensi').value;
- const kelas=document.getElementById('kelas').value;
- if(!tanggal){alert('Pilih tanggal!');return}
- if(new Date(tanggal+'T12:00:00').getDay()===5){
-  alert('Hari Jumat tidak ada absensi.');return;
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("welcome").textContent = "Login sebagai " + u.toUpperCase();
+  document.getElementById("jenisGuru").textContent = "Kategori: " + current.role.toUpperCase();
+
+  const today = new Date();
+  document.getElementById("tanggal").textContent =
+   today.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+  document.getElementById("tanggalAbsensi").value = localDate(today);
+
+  renderStudents();
+  updateDashboard();
+
+ } catch (err) {
+  error.textContent = err.message;
  }
- if(!data[tanggal])data[tanggal]={};
- document.querySelectorAll('#daftarSiswa select').forEach(el=>{
-  data[tanggal][el.dataset.key]=el.value;
+}
+
+function localDate(d) {
+ return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+
+function logout() {
+ current = null;
+ document.getElementById("app").classList.add("hidden");
+ document.getElementById("login").classList.remove("hidden");
+ document.getElementById("password").value = "";
+ document.getElementById("error").textContent = "";
+}
+
+function showPage(id,btn) {
+ ["dashboard","absensi","rekap"].forEach(x =>
+  document.getElementById(x).classList.add("hidden")
+ );
+ document.getElementById(id).classList.remove("hidden");
+
+ document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+ btn.classList.add("active");
+}
+
+function renderStudents() {
+ if (!current) return;
+
+ const kelas = document.getElementById("kelas").value;
+ const tanggal = document.getElementById("tanggalAbsensi").value;
+ const kategori = current.role;
+
+ let list = current.role === "admin"
+  ? [...(siswa[kelas]?.putra || []),...(siswa[kelas]?.putri || [])]
+  : (siswa[kelas]?.[kategori] || []);
+
+ const tbody = document.getElementById("daftarSiswa");
+ tbody.innerHTML = "";
+
+ list.forEach((nama,i) => {
+  const gender = (siswa[kelas].putra.includes(nama)) ? "putra" : "putri";
+
+  const old = attendance.find(r =>
+   r.tanggal === tanggal &&
+   r.kelas === kelas &&
+   r.nama === nama &&
+   r.gender === gender
+  );
+
+  tbody.innerHTML += `
+   <tr>
+    <td>${i+1}</td>
+    <td>${nama}</td>
+    <td>
+     <select data-nama="${nama}" data-gender="${gender}">
+      ${["HADIR","IZIN","SAKIT","TIDAK HADIR"].map(s =>
+       `<option ${old && old.status===s ? "selected":""}>${s}</option>`
+      ).join("")}
+     </select>
+    </td>
+   </tr>`;
  });
- localStorage.setItem('absensiAnnur',JSON.stringify(data));
- document.getElementById('pesan').textContent='Absensi berhasil disimpan!';
- updateDashboard();
 }
 
-function setAll(status){
- document.querySelectorAll('#daftarSiswa select').forEach(el=>el.value=status);
+async function simpan() {
+ const tanggal = document.getElementById("tanggalAbsensi").value;
+ const kelas = document.getElementById("kelas").value;
+
+ if (!tanggal) {
+  alert("Pilih tanggal terlebih dahulu!");
+  return;
+ }
+
+ if (new Date(tanggal+"T12:00:00").getDay() === 5) {
+  alert("Hari Jumat tidak ada absensi.");
+  return;
+ }
+
+ const elements = document.querySelectorAll("#daftarSiswa select");
+
+ if (!elements.length) {
+  alert("Tidak ada siswa untuk diabsen.");
+  return;
+ }
+
+ const records = Array.from(elements).map(el => ({
+  tanggal:tanggal,
+  kelas:kelas,
+  nama:el.dataset.nama,
+  gender:el.dataset.gender,
+  status:el.value,
+  guru:current.username
+ }));
+
+ const pesan = document.getElementById("pesan");
+ pesan.textContent = "Mengirim absensi ke Google Sheets...";
+
+ try {
+  await fetch(GOOGLE_SCRIPT_URL,{
+   method:"POST",
+   mode:"no-cors",
+   headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+   body:new URLSearchParams({
+    data:JSON.stringify({records:records})
+   })
+  });
+
+  await new Promise(resolve => setTimeout(resolve,1200));
+  await muatAbsensi();
+
+  pesan.textContent = "Data sudah dikirim. Silakan periksa tab ABSENSI di Google Sheets.";
+  renderStudents();
+  updateDashboard();
+
+ } catch(err) {
+  pesan.textContent = "Pengiriman gagal. Periksa URL dan koneksi internet.";
+ }
 }
 
-function updateDashboard(){
- let today=localDate(new Date()),counts={HADIR:0,IZIN:0,SAKIT:0,'TIDAK HADIR':0};
- Object.entries(data[today]||{}).forEach(([key,status])=>counts[status]++);
- document.getElementById('hadir').textContent=counts.HADIR;
- document.getElementById('izin').textContent=counts.IZIN+counts.SAKIT;
- document.getElementById('alpha').textContent=counts['TIDAK HADIR'];
- document.getElementById('total').textContent=Object.values(siswa).reduce((n,k)=>n+k.putra.length+k.putri.length,0);
+function setAll(status) {
+ document.querySelectorAll("#daftarSiswa select").forEach(el => el.value=status);
 }
 
-function buatRekap(){
- const kelas=document.getElementById('filterKelas').value;
- const bulan=document.getElementById('filterBulan').value;
- if(!bulan){alert('Pilih bulan terlebih dahulu');return}
- let semua=[...siswa[kelas].putra,...siswa[kelas].putri];
- let html='';
- semua.forEach((nama,i)=>{
-  let c={HADIR:0,IZIN:0,SAKIT:0,'TIDAK HADIR':0};
-  Object.entries(data).forEach(([tgl,records])=>{
-   if(tgl.startsWith(bulan)){
-    let s=records[kelas+'_'+nama];
-    if(s)c[s]++;
+function updateDashboard() {
+ const today = localDate(new Date());
+
+ const counts = {HADIR:0,IZIN:0,SAKIT:0,"TIDAK HADIR":0};
+
+ attendance.filter(r => r.tanggal === today).forEach(r => {
+  if (counts[r.status] !== undefined) counts[r.status]++;
+ });
+
+ document.getElementById("hadir").textContent = counts.HADIR;
+ document.getElementById("izin").textContent = counts.IZIN + counts.SAKIT;
+ document.getElementById("alpha").textContent = counts["TIDAK HADIR"];
+
+ let total = 0;
+ Object.values(siswa).forEach(k => total += k.putra.length + k.putri.length);
+
+ document.getElementById("total").textContent = total;
+}
+
+async function buatRekap() {
+ const kelas = document.getElementById("filterKelas").value;
+ const bulan = document.getElementById("filterBulan").value;
+
+ if (!bulan) {
+  alert("Pilih bulan terlebih dahulu.");
+  return;
+ }
+
+ try {
+  await muatAbsensi();
+ } catch(err) {
+  alert("Tidak dapat mengambil data rekap.");
+  return;
+ }
+
+ const semua = [
+  ...(siswa[kelas]?.putra || []),
+  ...(siswa[kelas]?.putri || [])
+ ];
+
+ let html = "";
+
+ semua.forEach((nama,i) => {
+  const gender = siswa[kelas].putra.includes(nama) ? "putra" : "putri";
+
+  const c = {HADIR:0,IZIN:0,SAKIT:0,"TIDAK HADIR":0};
+
+  attendance.forEach(r => {
+   if (r.tanggal.startsWith(bulan) &&
+       r.kelas === kelas &&
+       r.nama === nama &&
+       r.gender === gender &&
+       c[r.status] !== undefined) {
+    c[r.status]++;
    }
   });
-  html+=`<tr><td>${i+1}</td><td>${nama}</td><td>${c.HADIR}</td><td>${c.IZIN}</td><td>${c.SAKIT}</td><td>${c['TIDAK HADIR']}</td></tr>`;
+
+  html += `<tr>
+   <td>${i+1}</td><td>${nama}</td>
+   <td>${c.HADIR}</td><td>${c.IZIN}</td>
+   <td>${c.SAKIT}</td><td>${c["TIDAK HADIR"]}</td>
+  </tr>`;
  });
- document.getElementById('hasilRekap').innerHTML=html;
+
+ document.getElementById("hasilRekap").innerHTML = html;
 }
+
 </script>
 </body>
 </html>
