@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -32,8 +33,14 @@ th{background:#edf5f0;color:#22543d}
 .table-wrap{overflow-x:auto}
 .hidden{display:none!important}
 footer{text-align:center;color:#829087;padding:25px;font-size:12px}
-@media(max-width:650px){.stats{grid-template-columns:repeat(2,1fr)}header{padding:18px}}
-@media print{header,nav,button,.no-print,footer{display:none!important}.card{box-shadow:none}}
+@media(max-width:650px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ header{padding:18px}
+}
+@media print{
+ header,nav,button,.no-print,footer{display:none!important}
+ .card{box-shadow:none}
+}
 </style>
 </head>
 
@@ -89,18 +96,29 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
 
  <div id="absensi" class="card hidden">
   <h3>Form Absensi Sholat Zuhur</h3>
+
   <div class="controls">
-   <select id="kelas" onchange="renderStudents()"></select>
    <input type="date" id="tanggalAbsensi" onchange="renderStudents()">
    <button onclick="setAll('HADIR')">Semua Hadir</button>
   </div>
+
   <p id="jenisGuru"></p>
+  <p id="jumlahSiswa"></p>
+
   <div class="table-wrap">
    <table>
-    <thead><tr><th>No</th><th>Nama Siswa</th><th>Status Kehadiran</th></tr></thead>
+    <thead>
+     <tr>
+      <th>No</th>
+      <th>Nama Siswa</th>
+      <th>Kelas</th>
+      <th>Status Kehadiran</th>
+     </tr>
+    </thead>
     <tbody id="daftarSiswa"></tbody>
    </table>
   </div>
+
   <br>
   <button onclick="simpan()">SIMPAN ABSENSI</button>
   <p id="pesan"></p>
@@ -117,7 +135,14 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
   <div class="table-wrap">
    <table>
     <thead>
-     <tr><th>No</th><th>Nama</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Tidak Hadir</th></tr>
+     <tr>
+      <th>No</th>
+      <th>Nama</th>
+      <th>Hadir</th>
+      <th>Izin</th>
+      <th>Sakit</th>
+      <th>Tidak Hadir</th>
+     </tr>
     </thead>
     <tbody id="hasilRekap"></tbody>
    </table>
@@ -134,8 +159,8 @@ footer{text-align:center;color:#829087;padding:25px;font-size:12px}
 
 <script>
 
-// GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT
 const GOOGLE_SCRIPT_URL = "https://script.google.com/a/macros/smk.belajar.id/s/AKfycbyz7soT5qQuUjiVp1R4KAAf8ZKu1thuk7UXGxA3AW1QbTl_Gg-i8t-UumH47qseo53o_A/exec";
+
 const users = {
  admin:{password:"admin123",role:"admin"},
  putra:{password:"putra123",role:"putra"},
@@ -145,6 +170,7 @@ const users = {
 let current = null;
 let siswa = {};
 let attendance = [];
+let daftarAktif = [];
 
 function ambilData(action) {
  return new Promise((resolve,reject) => {
@@ -186,15 +212,18 @@ async function muatSiswa() {
  siswa = {};
 
  students.forEach(item => {
-  const kelas = item.kelas;
-  const gender = item.gender.toLowerCase();
+  const kelas = String(item.kelas || "").trim();
+  const nama = String(item.nama || "").trim();
+  const gender = String(item.gender || "").trim().toLowerCase();
+
+  if (!kelas || !nama) return;
+  if (gender !== "putra" && gender !== "putri") return;
 
   if (!siswa[kelas]) {
    siswa[kelas] = {putra:[],putri:[]};
   }
 
-  if (gender === "putra") siswa[kelas].putra.push(item.nama);
-  if (gender === "putri") siswa[kelas].putri.push(item.nama);
+  siswa[kelas][gender].push(nama);
  });
 
  const kelasList = Object.keys(siswa).sort();
@@ -203,10 +232,8 @@ async function muatSiswa() {
   throw new Error("Data siswa belum tersedia di tab SISWA.");
  }
 
- ["kelas","filterKelas"].forEach(id => {
-  document.getElementById(id).innerHTML =
-   kelasList.map(k => `<option value="${k}">${k}</option>`).join("");
- });
+ document.getElementById("filterKelas").innerHTML =
+  kelasList.map(k => `<option value="${k}">${k}</option>`).join("");
 }
 
 async function muatAbsensi() {
@@ -234,13 +261,23 @@ async function login() {
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   document.getElementById("welcome").textContent = "Login sebagai " + u.toUpperCase();
-  document.getElementById("jenisGuru").textContent = "Kategori: " + current.role.toUpperCase();
 
   const today = new Date();
+
   document.getElementById("tanggal").textContent =
-   today.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+   today.toLocaleDateString("id-ID",{
+    weekday:"long",
+    day:"numeric",
+    month:"long",
+    year:"numeric"
+   });
 
   document.getElementById("tanggalAbsensi").value = localDate(today);
+
+  document.getElementById("jenisGuru").textContent =
+   current.role === "admin"
+    ? "Kategori: ADMIN (Semua siswa)"
+    : "Kategori: GURU " + current.role.toUpperCase();
 
   renderStudents();
   updateDashboard();
@@ -251,11 +288,17 @@ async function login() {
 }
 
 function localDate(d) {
- return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+ return [
+  d.getFullYear(),
+  String(d.getMonth()+1).padStart(2,"0"),
+  String(d.getDate()).padStart(2,"0")
+ ].join("-");
 }
 
 function logout() {
  current = null;
+ daftarAktif = [];
+
  document.getElementById("app").classList.add("hidden");
  document.getElementById("login").classList.remove("hidden");
  document.getElementById("password").value = "";
@@ -266,54 +309,107 @@ function showPage(id,btn) {
  ["dashboard","absensi","rekap"].forEach(x =>
   document.getElementById(x).classList.add("hidden")
  );
+
  document.getElementById(id).classList.remove("hidden");
 
- document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(b =>
+  b.classList.remove("active")
+ );
+
  btn.classList.add("active");
+}
+
+function semuaSiswa() {
+ const list = [];
+
+ Object.keys(siswa).sort().forEach(kelas => {
+  ["putra","putri"].forEach(gender => {
+   siswa[kelas][gender].forEach(nama => {
+    list.push({
+     nama:nama,
+     kelas:kelas,
+     gender:gender
+    });
+   });
+  });
+ });
+
+ return list;
 }
 
 function renderStudents() {
  if (!current) return;
 
- const kelas = document.getElementById("kelas").value;
  const tanggal = document.getElementById("tanggalAbsensi").value;
- const kategori = current.role;
-
- let list = current.role === "admin"
-  ? [...(siswa[kelas]?.putra || []),...(siswa[kelas]?.putri || [])]
-  : (siswa[kelas]?.[kategori] || []);
-
  const tbody = document.getElementById("daftarSiswa");
+
+ // Ambil seluruh siswa sesuai akun guru.
+ daftarAktif = semuaSiswa().filter(item => {
+  if (current.role === "admin") return true;
+  return item.gender === current.role;
+ });
+
  tbody.innerHTML = "";
 
- list.forEach((nama,i) => {
-  const gender = (siswa[kelas].putra.includes(nama)) ? "putra" : "putri";
+ if (daftarAktif.length === 0) {
+  tbody.innerHTML = `
+   <tr><td colspan="4">Belum ada data siswa untuk kategori ini.</td></tr>
+  `;
+  document.getElementById("jumlahSiswa").textContent = "Jumlah siswa: 0";
+  return;
+ }
+
+ document.getElementById("jumlahSiswa").textContent =
+  "Jumlah siswa yang ditampilkan: " + daftarAktif.length;
+
+ daftarAktif.forEach((item,i) => {
 
   const old = attendance.find(r =>
    r.tanggal === tanggal &&
-   r.kelas === kelas &&
-   r.nama === nama &&
-   r.gender === gender
+   r.kelas === item.kelas &&
+   r.nama === item.nama &&
+   String(r.gender).toLowerCase() === item.gender
   );
 
-  tbody.innerHTML += `
-   <tr>
-    <td>${i+1}</td>
-    <td>${nama}</td>
-    <td>
-     <select data-nama="${nama}" data-gender="${gender}">
-      ${["HADIR","IZIN","SAKIT","TIDAK HADIR"].map(s =>
-       `<option ${old && old.status===s ? "selected":""}>${s}</option>`
-      ).join("")}
-     </select>
-    </td>
-   </tr>`;
+  const tr = document.createElement("tr");
+
+  const tdNo = document.createElement("td");
+  tdNo.textContent = i + 1;
+
+  const tdNama = document.createElement("td");
+  tdNama.textContent = item.nama;
+
+  const tdKelas = document.createElement("td");
+  tdKelas.textContent = item.kelas;
+
+  const tdStatus = document.createElement("td");
+  const select = document.createElement("select");
+
+  select.dataset.nama = item.nama;
+  select.dataset.kelas = item.kelas;
+  select.dataset.gender = item.gender;
+
+  ["HADIR","IZIN","SAKIT","TIDAK HADIR"].forEach(status => {
+   const option = document.createElement("option");
+   option.value = status;
+   option.textContent = status;
+
+   if (old && old.status === status) {
+    option.selected = true;
+   }
+
+   select.appendChild(option);
+  });
+
+  tdStatus.appendChild(select);
+
+  tr.append(tdNo,tdNama,tdKelas,tdStatus);
+  tbody.appendChild(tr);
  });
 }
 
 async function simpan() {
  const tanggal = document.getElementById("tanggalAbsensi").value;
- const kelas = document.getElementById("kelas").value;
 
  if (!tanggal) {
   alert("Pilih tanggal terlebih dahulu!");
@@ -334,7 +430,7 @@ async function simpan() {
 
  const records = Array.from(elements).map(el => ({
   tanggal:tanggal,
-  kelas:kelas,
+  kelas:el.dataset.kelas,
   nama:el.dataset.nama,
   gender:el.dataset.gender,
   status:el.value,
@@ -348,7 +444,9 @@ async function simpan() {
   await fetch(GOOGLE_SCRIPT_URL,{
    method:"POST",
    mode:"no-cors",
-   headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+   headers:{
+    "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
+   },
    body:new URLSearchParams({
     data:JSON.stringify({records:records})
    })
@@ -357,26 +455,38 @@ async function simpan() {
   await new Promise(resolve => setTimeout(resolve,1200));
   await muatAbsensi();
 
-  pesan.textContent = "Data sudah dikirim. Silakan periksa tab ABSENSI di Google Sheets.";
+  pesan.textContent =
+   "Data absensi telah dikirim. Silakan periksa tab ABSENSI di Google Sheets.";
+
   renderStudents();
   updateDashboard();
 
  } catch(err) {
-  pesan.textContent = "Pengiriman gagal. Periksa URL dan koneksi internet.";
+  pesan.textContent =
+   "Pengiriman gagal. Periksa URL dan koneksi internet.";
  }
 }
 
 function setAll(status) {
- document.querySelectorAll("#daftarSiswa select").forEach(el => el.value=status);
+ document.querySelectorAll("#daftarSiswa select").forEach(el => {
+  el.value = status;
+ });
 }
 
 function updateDashboard() {
  const today = localDate(new Date());
 
- const counts = {HADIR:0,IZIN:0,SAKIT:0,"TIDAK HADIR":0};
+ const counts = {
+  HADIR:0,
+  IZIN:0,
+  SAKIT:0,
+  "TIDAK HADIR":0
+ };
 
  attendance.filter(r => r.tanggal === today).forEach(r => {
-  if (counts[r.status] !== undefined) counts[r.status]++;
+  if (counts[r.status] !== undefined) {
+   counts[r.status]++;
+  }
  });
 
  document.getElementById("hadir").textContent = counts.HADIR;
@@ -384,7 +494,10 @@ function updateDashboard() {
  document.getElementById("alpha").textContent = counts["TIDAK HADIR"];
 
  let total = 0;
- Object.values(siswa).forEach(k => total += k.putra.length + k.putri.length);
+
+ Object.values(siswa).forEach(k => {
+  total += k.putra.length + k.putri.length;
+ });
 
  document.getElementById("total").textContent = total;
 }
@@ -406,35 +519,61 @@ async function buatRekap() {
  }
 
  const semua = [
-  ...(siswa[kelas]?.putra || []),
-  ...(siswa[kelas]?.putri || [])
+  ...(siswa[kelas]?.putra || []).map(nama => ({
+   nama:nama,
+   gender:"putra"
+  })),
+  ...(siswa[kelas]?.putri || []).map(nama => ({
+   nama:nama,
+   gender:"putri"
+  }))
  ];
 
  let html = "";
 
- semua.forEach((nama,i) => {
-  const gender = siswa[kelas].putra.includes(nama) ? "putra" : "putri";
-
-  const c = {HADIR:0,IZIN:0,SAKIT:0,"TIDAK HADIR":0};
+ semua.forEach((item,i) => {
+  const c = {
+   HADIR:0,
+   IZIN:0,
+   SAKIT:0,
+   "TIDAK HADIR":0
+  };
 
   attendance.forEach(r => {
-   if (r.tanggal.startsWith(bulan) &&
-       r.kelas === kelas &&
-       r.nama === nama &&
-       r.gender === gender &&
-       c[r.status] !== undefined) {
+   if (
+    String(r.tanggal).startsWith(bulan) &&
+    r.kelas === kelas &&
+    r.nama === item.nama &&
+    String(r.gender).toLowerCase() === item.gender &&
+    c[r.status] !== undefined
+   ) {
     c[r.status]++;
    }
   });
 
-  html += `<tr>
-   <td>${i+1}</td><td>${nama}</td>
-   <td>${c.HADIR}</td><td>${c.IZIN}</td>
-   <td>${c.SAKIT}</td><td>${c["TIDAK HADIR"]}</td>
-  </tr>`;
+  html += `
+   <tr>
+    <td>${i+1}</td>
+    <td>${escapeHTML(item.nama)}</td>
+    <td>${c.HADIR}</td>
+    <td>${c.IZIN}</td>
+    <td>${c.SAKIT}</td>
+    <td>${c["TIDAK HADIR"]}</td>
+   </tr>
+  `;
  });
 
  document.getElementById("hasilRekap").innerHTML = html;
+}
+
+function escapeHTML(value) {
+ return String(value).replace(/[&<>"']/g, char => ({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[char]));
 }
 
 </script>
