@@ -182,15 +182,44 @@ let current=null;
 let data=JSON.parse(localStorage.getItem('absensiAnnur')||'{}');
 
 const siswa={
- 'X TKJ':{putra:['Ahmad','Budi','Fajar'],putri:['Aisyah','Dina','Siti']},
- 'X ASKEP':{putra:['Rizki','Arif'],putri:['Nadia','Putri']},
- 'XI TKJ':{putra:['Dimas','Rian'],putri:['Nabila','Aulia']},
- 'XI ASKEP':{putra:['Ilham','Farhan'],putri:['Zahra','Intan']},
- 'XII TKJ':{putra:['Andi','Reza'],putri:['Alya','Nisa']},
- 'XII ASKEP':{putra:['Rafi','Hafiz'],putri:['Salma','Laila']}
+ 
+async function muatSiswa() {
+  const response = await fetch(GOOGLE_SCRIPT_URL);
+  const students = await response.json();
+
+  siswa = {};
+
+  students.forEach(item => {
+    const kelas = item.kelas;
+    const gender = item.gender.toLowerCase();
+
+    if (!siswa[kelas]) {
+      siswa[kelas] = {
+        putra: [],
+        putri: []
+      };
+    }
+
+    if (gender === "putra") {
+      siswa[kelas].putra.push(item.nama);
+    } else if (gender === "putri") {
+      siswa[kelas].putri.push(item.nama);
+    }
+  });
+
+  // Isi pilihan kelas secara otomatis
+  const options = Object.keys(siswa)
+    .sort()
+    .map(k => `<option>${k}</option>`)
+    .join("");
+
+  document.getElementById("kelas").innerHTML = options;
+  document.getElementById("filterKelas").innerHTML = options;
+}
+
 };
 
-function login(){
+function async function login()
  const u=document.getElementById('username').value;
  const p=document.getElementById('password').value;
  if(!users[u]||users[u].password!==p){
@@ -224,7 +253,7 @@ function showPage(id,btn){
  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
 }
-
+await muatSiswa();
 function renderStudents(){
  if(!current)return;
  const kelas=document.getElementById('kelas').value;
